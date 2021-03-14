@@ -7,20 +7,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * 
  * Desafio que propunha criar um serializador de objetos para JSON que suporte
- * arrays e objetos. Nesse caso, no momento suporta arrays primitivos (de tipos
- * primitivos ou não), listas e sets. Não suporta outros components da
- * Collections API, nem Maps.
+ * arrays e objetos. Suporta toda a Collections API, Maps, Objetos, arrays
+ * primitivos (de tipos primitivos ou não).
  * 
  * @author Matheus Cirillo
  *
  */
-@SuppressWarnings("unchecked")
 public class JsonWriter {
 
 	/**
@@ -133,14 +130,12 @@ public class JsonWriter {
 		if (object instanceof Collection || object.getClass().isArray()) {
 			if (object.getClass().isArray()) {
 				object = collectAsList(object);
-			} else if (object instanceof Set) {
-				object = collectAsList((Set<Object>) object);
 			}
 
 			builder.append(START_ARRAY);
-			depth = ((List<?>) object).size();
+			depth = ((Collection<?>) object).size();
 			currentDepth = 0;
-			for (Object obj : (List<?>) object) {
+			for (Object obj : (Collection<?>) object) {
 				currentDepth++;
 				doWrite(obj, builder, depth, currentDepth);
 				if (currentDepth < depth)
@@ -154,30 +149,51 @@ public class JsonWriter {
 				builder.append(findEnclosureChar(object.getClass()));
 			} else {
 				builder.append(START_OBJECT);
-				Field[] fields = object.getClass().getDeclaredFields();
-				depth = fields.length;
-				currentDepth = 0;
-				for (Field field : fields) {
-					currentDepth++;
-					builder.append(KEY_ENCLOSURE);
-					builder.append(field.getName());
-					builder.append(KEY_ENCLOSURE);
-					builder.append(KEY_VALUE_SEP);
-					Method getter = object.getClass().getMethod(guessGetMethod(field.getName()));
-					Object result = getter.invoke(object);
-					if (result == null) {
-						builder.append("null");
-					} else {
-						doWrite(result, builder, depth, currentDepth);
+				if (object instanceof Map) {
+					depth = ((Map<?, ?>) object).size();
+					currentDepth = 0;
+					for (Object key : ((Map<?, ?>) object).keySet()) {
+						currentDepth++;
+						Object obj = ((Map<?, ?>) object).get(key);
+						builder.append(KEY_ENCLOSURE);
+						builder.append(String.valueOf(key));
+						builder.append(KEY_ENCLOSURE);
+						builder.append(KEY_VALUE_SEP);
+						if (obj == null) {
+							builder.append("null");
+						} else {
+							doWrite(obj, builder, depth, currentDepth);
+						}
+						if (currentDepth < depth)
+							builder.append(SEP);
 					}
-					if (currentDepth < depth)
-						builder.append(SEP);
+				} else {
+					Field[] fields = object.getClass().getDeclaredFields();
+					depth = fields.length;
+					currentDepth = 0;
+					for (Field field : fields) {
+						currentDepth++;
+						builder.append(KEY_ENCLOSURE);
+						builder.append(field.getName());
+						builder.append(KEY_ENCLOSURE);
+						builder.append(KEY_VALUE_SEP);
+						Method getter = object.getClass().getMethod(guessGetMethod(field.getName()));
+						Object result = getter.invoke(object);
+						if (result == null) {
+							builder.append("null");
+						} else {
+							doWrite(result, builder, depth, currentDepth);
+						}
+						if (currentDepth < depth)
+							builder.append(SEP);
+					}
 				}
 				builder.append(END_OBJECT);
 			}
 		}
 
 		return builder.toString();
+
 	}
 
 	/**
@@ -207,18 +223,6 @@ public class JsonWriter {
 		}
 
 		return list;
-	}
-
-	/**
-	 * Cria uma lista a partir dos valores de um Set - se faz necessário, pois,
-	 * dessa forma é possível iterar todos os arrays da mesma forma durante a
-	 * escrita do JSON
-	 * 
-	 * @param set
-	 * @return
-	 */
-	private List<Object> collectAsList(Set<Object> set) {
-		return set.stream().collect(Collectors.toList());
 	}
 
 	/**

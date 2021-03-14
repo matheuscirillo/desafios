@@ -2,6 +2,7 @@ package br.com.matheuscirillo.desafios.jsonserializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -17,6 +18,7 @@ public class Demo {
 				Arrays.asList(new Atividade("Ir para a aula de inglês"), new Atividade("Ir para a natação")));
 		Set<Atividade> atividadesSet = new HashSet<>(
 				Arrays.asList(new Atividade("Ir para a aula de inglês"), new Atividade("Ir para a natação")));
+		Atividade atividade = new Atividade("AAAA");
 
 		int[] numerosArr = new int[] { 1, 2, 3, 4, 5 };
 		List<Integer> numerosList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
@@ -30,6 +32,8 @@ public class Demo {
 		pessoa.setNome("Matheus");
 		pessoa.setOutroDataTypePrimitivo(new Random().nextDouble());
 		pessoa.setSetDeAtividades(atividadesSet);
+		pessoa.setAtividade(atividade);
+		pessoa.setAtividadeMap(Collections.singletonMap("aaaaaaaaaaaaaaaaaaaaaa", new Atividade("skaoskoaskoaMAP")));
 
 		JsonWriter writer = new JsonWriter();
 		String json = writer.writeAsJson(pessoa);

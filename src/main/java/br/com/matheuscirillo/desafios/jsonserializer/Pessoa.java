@@ -1,6 +1,7 @@
 package br.com.matheuscirillo.desafios.jsonserializer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Pessoa {
@@ -10,6 +11,8 @@ public class Pessoa {
 	private int dataTypePrimitivo;
 	private double outroDataTypePrimitivo;
 	private int[] arrayDeNumerosInteirosPrimitivos;
+	private Atividade atividade;
+	private Map<String, Atividade> atividadeMap;
 	private List<Integer> listaDeWrapper;
 	private Atividade[] atividadesEmArrayPrimitivo;
 	private List<Atividade> listaDeAtividades;
@@ -85,6 +88,22 @@ public class Pessoa {
 
 	public void setListaDeWrapper(List<Integer> listaDeWrapper) {
 		this.listaDeWrapper = listaDeWrapper;
+	}
+
+	public Atividade getAtividade() {
+		return atividade;
+	}
+
+	public void setAtividade(Atividade atividade) {
+		this.atividade = atividade;
+	}
+
+	public Map<String, Atividade> getAtividadeMap() {
+		return atividadeMap;
+	}
+
+	public void setAtividadeMap(Map<String, Atividade> atividadeMap) {
+		this.atividadeMap = atividadeMap;
 	}
 
 }
